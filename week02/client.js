@@ -4,7 +4,7 @@ class Request {
   constructor(options) {
     this.method = options.method || 'GET';
     this.host = options.host;
-    this.port = options.port || '80';
+    this.port = options.port || 80;
     this.path = options.path || '/';
     this.body = options.body || {};
     this.headers = options.headers || {};
@@ -23,15 +23,21 @@ class Request {
   }
 
   send(connection) {
+    console.log(0);
+
     return new Promise((resolve, reject) => {
+      console.log(this);
       const parser = new ResponseParser;
       if (connection) {
+        console.log(111111);
         connection.write(this.toString());
       } else {
         connection = net.createConnection({
           host: this.host,
           port: this.port
         }, () => {
+          console.log('connected to server!');
+          // console.log(this.toString());
           connection.write(this.toString());
         });
       }
@@ -54,9 +60,9 @@ class Request {
 
   toString() {
     return `${this.method} ${this.path} HTTP/1.1\r
-    ${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\r
-    ${this.bodyText}`
-  }
+${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\r
+
+${this.bodyText}`}
 }
 
 class ResponseParser {
@@ -144,7 +150,7 @@ class ResponseParser {
         this.current = this.WAITING_BODY;
       }
     } else if (this.current === this.WAITING_BODY) {
-      // this.bodyParser.receiveChar(char);
+      this.bodyParser.receiveChar(char);
     }
   }
 }
@@ -201,7 +207,7 @@ void async function(){
   let request = new Request({
     method: 'POST',
     host: '127.0.0.1',
-    port: "8088",
+    port: 8088,
     path: '/',
     headers: {
       ["X-Foo2"]: "customed"
