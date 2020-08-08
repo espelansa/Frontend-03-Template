@@ -10,20 +10,12 @@ function start(c) {
   if (c === "a") {
     return foundA;
   } else {
-    return start(c);
+    return start;
   }
 }
 
 function end(c) {
   return end;
-}
-
-function again(c) {
-  if (c === "a") {
-    return foundA2;
-  } else {
-    return start(c);
-  }
 }
 
 function foundA(c) {
@@ -36,7 +28,15 @@ function foundA(c) {
 
 function foundB(c) {
   if (c === 'c') {
-    return again;
+    return foundC;
+  } else {
+    return start(c);
+  }
+}
+
+function foundC(c) {
+  if (c === 'a') {
+    return foundA2;
   } else {
     return start(c);
   }
@@ -53,12 +53,9 @@ function foundA2(c) {
 function foundB2(c) {
   if (c === 'x') {
     return end;
-  } else if (c === 'c') {
-    return again;
-  } 
-  else {
-    return start(c);
+  } else {
+    return foundB(c);
   }
 }
 
-console.log(match("abcabyabx"));
+console.log(match("abxabcabyabcabcabc"));
