@@ -32,6 +32,7 @@ class Request {
         console.log(111111);
         connection.write(this.toString());
       } else {
+        console.log(3333)
         connection = net.createConnection({
           host: this.host,
           port: this.port
@@ -67,16 +68,16 @@ ${this.bodyText}`}
 
 class ResponseParser {
   constructor(){
-    this.WAITING_STATUS_LINE = 0;
-    this.WAITING_STATUS_LINE_END = 1;
-    this.WAITING_HEADER_NAME = 2;
-    this.WAITING_HEADER_SPACE = 3;
-    this.WAITING_HEADER_VALUE = 4;
-    this.WAITING_HEADER_LINE_END = 5;
-    this.WAITING_HEADER_BLOCK_END = 6;
-    this.WAITING_BODY = 7;
+    // this.WAITING_STATUS_LINE = 0;
+    // this.WAITING_STATUS_LINE_END = 1;
+    // this.WAITING_HEADER_NAME = 2;
+    // this.WAITING_HEADER_SPACE = 3;
+    // this.WAITING_HEADER_VALUE = 4;
+    // this.WAITING_HEADER_LINE_END = 5;
+    // this.WAITING_HEADER_BLOCK_END = 6;
+    // this.WAITING_BODY = 7;
 
-    this.current = this.WAITING_STATUS_LINE;
+    // this.current = this.WAITING_STATUS_LINE;
     this.statusLine = '';
     this.headers = {};
     this.headerName = '';
@@ -102,6 +103,10 @@ class ResponseParser {
     for (let i = 0; i < string.length; i++) {
       this.receiveChar(string.charAt(i));
     }
+  }
+
+  receiveChar(char) {
+    this.waitStatusLine(char);
   }
 
   waitStatusLine(char) {
@@ -146,33 +151,34 @@ class ResponseParser {
 
 	waitHeaderValue(char) {
 		if (char === '\r') {
-			
-		}
-	}
-
-  receiveChar(char) {
-    if (this.current === this.WAITING_STATUS_LINE) {
-    } else if (this.current === this.WAITING_HEADER_VALUE) {
-      if (char === '\r') {
-        this.current = this.WAITING_HEADER_LINE_END;
-        // 要把这对kv存入header，然后把暂存用的headerName和headerValue清空
-        this.headers[this.headerName] = this.headerValue;
-        this.headerName = '';
-        this.headerValue = '';
-      } else {
-        this.headerValue += char;
-      }
-    } else if (this.current === this.WAITING_HEADER_LINE_END) {
-      if (char === '\n') {
-        this.current = this.WAITING_HEADER_NAME;
-      }
-    } else if (this.current === this.WAITING_HEADER_BLOCK_END) {
-      if (char === '\n') {
-        this.current = this.WAITING_BODY;
-      }
-    } else if (this.current === this.WAITING_BODY) {
-      this.bodyParser.receiveChar(char);
+			this.headers[this.headerName] = this.headerValue;
+      this.headerName = '';
+      this.headerValue = '';
+      return this.waitHeaderLineEnd;
+		} else {
+      this.headerValue += char;
+      return this.waitHeaderValue;
     }
+  }
+  
+  waitHeaderLineEnd(char) {
+    if (char === '\n') {
+      return this.waitHeaderName;
+    } else {
+      return this.waitHeaderName(char);
+    }
+  }
+
+  waitHeaderBlockEnd(char) {
+    if (char === '\n') {
+      return this.waitBody;
+    } else {
+      return this.waitHeaderBlockEnd;
+    }
+  }
+
+  waitBody(char) {
+    this.bodyParser.receiveChar(char);
   }
 }
 
