@@ -59,10 +59,18 @@ class Request {
   }
 
   toString() {
-    return `${this.method} ${this.path} HTTP/1.1\r
-${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\r
+    let stream = [
+      `${this.method} ${this.path} HTTP/1.1\r\n`, 
+      `${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\n\r\n`,
+      `${this.bodyText}`
+    ];
+    return stream.join('');
+  }
+//     return `${this.method} ${this.path} HTTP/1.1\r\n
+// ${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\n
 
-${this.bodyText}`}
+// ${this.bodyText}`
+//   }
 }
 
 class ResponseParser {
