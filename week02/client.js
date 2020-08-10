@@ -125,14 +125,17 @@ class ResponseParser {
       }
     } else if (this.current === this.WAITING_HEADER_NAME) {
       if (char === ':') {
+        console.log(char, ":")
         this.current === this.WAITING_HEADER_SPACE;
       } else if (char === '\r') {
         // 如果没有等来冒号只等来\r说明这是一个空行
+        console.log(char, '\r')
         this.current = this.WAITING_HEADER_BLOCK_END;
         if (this.headers['Transfer-Encoding'] === 'chunked') {
           this.bodyParser = new TrunkedBodyParser();
         }
       } else {
+        console.log(char)
         this.headerName += char;
       }
     } else if (this.current === this.WAITING_HEADER_SPACE) {

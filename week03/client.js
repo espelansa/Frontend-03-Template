@@ -1,4 +1,5 @@
 const net = require('net');
+const parser = require('./parser.js');
 
 class Request {
   constructor(options) {
@@ -23,32 +24,32 @@ class Request {
   }
 
   send(connection) {
-    console.log(0);
 
     return new Promise((resolve, reject) => {
-      console.log(this);
-      const parser = new ResponseParser;
+      
       if (connection) {
-        console.log(111111);
         connection.write(this.toString());
       } else {
-        console.log(3333)
+        // console.log('this', this);
         connection = net.createConnection({
           host: this.host,
           port: this.port
         }, () => {
-          console.log('connected to server!');
+          // console.log('connected to server!');
           // console.log(this.toString());
           connection.write(this.toString());
         });
       }
 
       connection.on('data', data => {
-        console.log('DATA', data.toString());
+        // console.log('DATA', data.toString());
+        const parser = new ResponseParser();
         parser.receive(data.toString());
-        if (parser.idFinished) {
-          resolve(parser.response);
+        // console.log("parser.isFinished", parser.isFinished)
+        if (parser.isFinished) {
+          // console.log("parser.response", parser.response);
           connection.end();
+          resolve(parser.response);
         }
       })
 
@@ -65,22 +66,27 @@ class Request {
       `${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\n\r\n`,
       `${this.bodyText}`
     ];
+    // console.log(stream.join(''));
     return stream.join('');
   }
+//     return `${this.method} ${this.path} HTTP/1.1\r
+// ${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\r
+
+// ${this.bodyText}`}
 }
 
 class ResponseParser {
   constructor(){
-    // this.WAITING_STATUS_LINE = 0;
-    // this.WAITING_STATUS_LINE_END = 1;
-    // this.WAITING_HEADER_NAME = 2;
-    // this.WAITING_HEADER_SPACE = 3;
-    // this.WAITING_HEADER_VALUE = 4;
-    // this.WAITING_HEADER_LINE_END = 5;
-    // this.WAITING_HEADER_BLOCK_END = 6;
-    // this.WAITING_BODY = 7;
+    this.WAITING_STATUS_LINE = 0;
+    this.WAITING_STATUS_LINE_END = 1;
+    this.WAITING_HEADER_NAME = 2;
+    this.WAITING_HEADER_SPACE = 3;
+    this.WAITING_HEADER_VALUE = 4;
+    this.WAITING_HEADER_LINE_END = 5;
+    this.WAITING_HEADER_BLOCK_END = 6;
+    this.WAITING_BODY = 7;
 
-    // this.current = this.WAITING_STATUS_LINE;
+    this.current = this.WAITING_STATUS_LINE;
     this.statusLine = '';
     this.headers = {};
     this.headerName = '';
@@ -89,6 +95,8 @@ class ResponseParser {
   }
 
   get isFinished() {
+    // console.log('get finished')
+    // console.log(this.bodyParser, 'bodyParser')
     return this.bodyParser && this.bodyParser.isFinished;
   }
 
@@ -109,79 +117,58 @@ class ResponseParser {
   }
 
   receiveChar(char) {
-    this.waitStatusLine(char);
-  }
-
-  waitStatusLine(char) {
-    if (char === '\r') {
-      return this.waitStatusLineEnd;
-    } else {
-			this.statusLine += char;
-			return this.waitStatusLine;
+    if (this.current === this.WAITING_STATUS_LINE) {
+      if (char === '\r') {
+        this.current = this.WAITING_STATUS_LINE_END;
+      } else {
+        this.statusLine += char;
+      }
+    } else if (this.current === this.WAITING_STATUS_LINE_END) {
+      if (char === '\n') {
+        this.current = this.WAITING_HEADER_NAME;
+      }
+    } else if (this.current === this.WAITING_HEADER_NAME) {
+      if (char === ':') {
+        this.current === this.WAITING_HEADER_SPACE;
+      } else if (char === '\r') {
+        // 如果没有等来冒号只等来\r说明这是一个空行
+        this.current = this.WAITING_HEADER_BLOCK_END;
+        // console.log(this.headers, 'headers');
+        // if (this.headers['Transfer-Encoding'] === 'chunked') {
+          this.bodyParser = new TrunkedBodyParser();
+          // console.log(this.bodyParser, 'bodyParser 222222')
+        // }
+      } else {
+        this.headerName += char;
+      }
+    } else if (this.current === this.WAITING_HEADER_SPACE) {
+      if (char === ' ') {
+        this.current = this.WAITING_HEADER_VALUE;
+      }
+    } else if (this.current === this.WAITING_HEADER_VALUE) {
+      if (char === '\r') {
+        this.current = this.WAITING_HEADER_LINE_END;
+        // 要把这对kv存入header，然后把暂存用的headerName和headerValue清空
+        this.headers[this.headerName] = this.headerValue;
+        this.headerName = '';
+        this.headerValue = '';
+      } else {
+        this.headerValue += char;
+      }
+    } else if (this.current === this.WAITING_HEADER_LINE_END) {
+      if (char === '\n') {
+        this.current = this.WAITING_HEADER_NAME;
+      }
+    } else if (this.current === this.WAITING_HEADER_BLOCK_END) {
+      if (char === '\n') {
+        this.current = this.WAITING_BODY;
+      }
+    } else if (this.current === this.WAITING_BODY) {
+      if (this.bodyParser) {
+        // console.log(char, 'bbbbbb')
+        this.bodyParser.receiveChar(char);
+      }
     }
-	}
-	
-	waitStatusLineEnd(char) {
-		if (char === '\n') {
-			return this.waitHeaderName;
-		} else {
-			// \r表示在行首，但未紧跟\n，所以理解为statusLine清空重来，但一般不会发生。
-			this.statusLine = '';
-			return this.waitStatusLine(char);
-		}
-	}
-
-	waitHeaderName(char) {
-		if (char === ':') {
-			return this.waitHeaderSpace;
-		} else if (char === '\r') {
-			if (this.headers['Transfer-Encoding'] === 'chunked') {
-				this.bodyParser = new TrunkedBodyParser();
-			}
-			return this.waitHeaderBlockEnd;
-		} else {
-			this.headerName += char;
-		}
-	}
-
-	waitHeaderSpace(char) {
-		if (char !== " ") {
-			return this.waitHeaderValue(char);
-		} else {
-			return this.waitHeaderSpace;
-		}
-	}
-
-	waitHeaderValue(char) {
-		if (char === '\r') {
-			this.headers[this.headerName] = this.headerValue;
-      this.headerName = '';
-      this.headerValue = '';
-      return this.waitHeaderLineEnd;
-		} else {
-      this.headerValue += char;
-      return this.waitHeaderValue;
-    }
-  }
-  
-  waitHeaderLineEnd(char) {
-    if (char === '\n') {
-      return this.waitHeaderName;
-    } else {
-      return this.waitHeaderName(char);
-    }
-  }
-
-  waitHeaderBlockEnd(char) {
-    if (char === '\n') {
-      return this.waitBody;
-    } else {
-      return this.waitHeaderBlockEnd;
-    }
-  }
-
-  waitBody(char) {
-    this.bodyParser.receiveChar(char);
   }
 }
 
@@ -198,9 +185,11 @@ class TrunkedBodyParser {
     this.current = this.WAITING_LENGTH;
   }
   receiveChar(char) {
+    console.log('char', char);
+    console.log(this.length, this.current, this.WAITING_LENGTH);
     if (this.current === this.WAITING_LENGTH) {
       // ???
-      if (char === '\r') {
+      if (char === '\r' || char === '\n') {
         if (this.length === 0) {
           this.isFinished = true;
         }
@@ -209,6 +198,7 @@ class TrunkedBodyParser {
         // length是一个16进制，所以要给原来的值*16，把最后一位空出来，然后再把读进来的这一位给他加上
         this.length *= 16;
         this.length += parseInt(char, 16);
+        // console.log(this.length, 'llll');
       }
     } else if (this.current === this.WAITING_LENGTH_LINE_END) {
       if (char === '\n') {
@@ -246,8 +236,11 @@ void async function(){
       name: 'espelansa'
     }
   });
-  
   let response = await request.send();
+  console.log(response)
 
-  console.log(response);
+  // 现实中是应该做成异步分段处理的
+  // 这里为了方便实现，采用一个把body全收回来然后再交给HTML parser的
+  let dom = parser.parseHTML(response.body);
+  dom();
 }();
