@@ -1,4 +1,5 @@
 const http = require('http');
+const fs = require('fs');
 
 http.createServer((request, response) => {
   let body = [];
@@ -14,7 +15,12 @@ http.createServer((request, response) => {
       body = body.join("");
       console.log("body:", body);
       response.writeHead(200, { 'Content-Type': 'text/html' });
-      response.end(' Hello World\n');
+      fs.readFile('./index.html', 'utf-8', function(err, data) {
+        if (err) {
+          throw err;
+        }
+        response.end(data);
+      });
     })
 }).listen(8088);
 
