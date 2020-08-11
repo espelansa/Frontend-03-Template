@@ -1,9 +1,61 @@
 const EOF = Symbol("EOF");
 let currentToken = null;
 let currentAttribute = null;
+let currentTextNode = null;
+
+// 配对良好的html片段最后整个的栈应该是空的，所以设置一个初始的根节点方便我们把整棵树拿出来
+// 先入后出 => 栈顶是数组最后一个元素
+let stack = [{ type: "document", children: [] }];
 
 function emit(token) {
-  console.log(token);
+  
+  let top = stack[stack.length - 1];
+
+  if (token.type === "startTag") {
+    let element = {
+      type: 'element',
+      children: [],
+      attributes: []
+    }
+
+    element.tagName = token.tagName;
+
+    for (let p in token) {
+      if (p !== "type" && p !== "tagName" ) {
+        element.attributes.push({
+          name: p,
+          value: token[p]
+        });
+      }
+    }
+
+    // 把当前元素挂在其父元素上
+    top.children.push(element);
+    element.parent = top;
+
+    // 自封闭标签存入就要立马从栈里取出，所以不需要push入栈
+    if (!token.isSelfClosing) {
+      stack.push(element);
+    }
+
+    currentTextNode = null;
+  } else if (token.type === "endTag") {
+    if (top.tagName !== token.tagName) {
+      throw new Error('Tag start end doesn\'t match!');
+    } else {
+      stack.pop();
+    }
+    currentTextNode = null;
+  } else if (token.type === "text") {
+    if (!currentTextNode) {
+      currentTextNode = {
+        type: "text",
+        content: "",
+      }
+      top.children.push(currentTextNode);
+    }
+    currentTextNode.content += token.content;
+  }
 }
 
 function data(c) {
@@ -89,7 +141,7 @@ function beforeAttributeName(c) {
   if (c.match(/^\s$/)) {
     return beforeAttributeName;
   } else if (c === ">" || c === "/" || c === EOF) {
-    return afterAttributeName;
+    return afterAttributeName(c);
   } else if (c === "=") {
     // throw error
   } else {
@@ -223,6 +275,7 @@ function afterQuotedAttributeValue(c) {
 function selfClosingStartTag(c) {
   if (c === ">") {
     currentToken.isSelfClosing = true;
+    emit(currentToken);
     return data;
   } else {
     // throw err
@@ -231,9 +284,9 @@ function selfClosingStartTag(c) {
 
 
 module.exports.parseHTML = function parseHTML(html) {
-  // console.log(html);
   let state = data;
   for (let c of html) {
     state = state(c)
   }
+  console.log(stack[0]);
 }
