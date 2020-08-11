@@ -57,7 +57,6 @@ class Request {
     let string = `${this.method} ${this.path} HTTP/1.1\r\n${Object.keys(this.headers)
       .map((key) => `${key}: ${this.headers[key]}`)
       .join('\r\n')}\r\n\r\n${this.bodyText}`
-    // console.log(string);
     return string;
   }
 }
@@ -96,7 +95,6 @@ class ResponseParser {
   }
 
   receive(string) {
-    // console.log('receive', string);
     for (let i = 0; i < string.length; i++) {
       this.receiveChar(string.charAt(i));
     }
@@ -168,7 +166,6 @@ class TrunkedBodyParser {
     this.current = this.WAITING_LENGTH;
   }
   receiveChar(char) {
-    console.log('trunked', char)
     if (this.current === this.WAITING_LENGTH) {
       // ???
       if (char === '\r') {
@@ -180,7 +177,6 @@ class TrunkedBodyParser {
         // length是一个16进制，所以要给原来的值*16，把最后一位空出来，然后再把读进来的这一位给他加上
         this.length *= 16;
         this.length += parseInt(char, 16);
-        // console.log(this.length, 'llll');
       }
     } else if (this.current === this.WAITING_LENGTH_LINE_END) {
       if (char === '\n') {
@@ -219,7 +215,6 @@ void (async function(){
     }
   });
   let response = await request.send();
-  console.log('response', response)
 
   // 现实中是应该做成异步分段处理的
   // 这里为了方便实现，采用一个把body全收回来然后再交给HTML parser的
