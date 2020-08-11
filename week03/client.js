@@ -17,39 +17,32 @@ class Request {
     if (this.headers["Content-Type"] === 'application/json') {
       this.bodyText = JSON.stringify(this.body);
     } else if (this.headers["Content-Type"] === "application/x-www-form-urlencoded") {
-      this.bodyText = Object.keys(this.body).map(key => `${key}=${encodeURIComponent(this.body[key])}`).join('&');
+      this.bodyText = Object.keys(this.body).map((key) => `${key}=${encodeURIComponent(this.body[key])}`).join('&');
     }
-
-    this.headers["Content-Length"] = this.bodyText.length;
+    // error01 Content-length 写成了 Content-Length
+    this.headers["Content-length"] = this.bodyText.length;
   }
 
   send(connection) {
 
-    return new Promise((resolve, reject) => {
-      
+    return new Promise((resolve, reject) => { 
+      const parser = new ResponseParser();
       if (connection) {
         connection.write(this.toString());
       } else {
-        // console.log('this', this);
         connection = net.createConnection({
           host: this.host,
           port: this.port
         }, () => {
-          // console.log('connected to server!');
-          // console.log(this.toString());
           connection.write(this.toString());
         });
       }
 
       connection.on('data', data => {
-        // console.log('DATA', data.toString());
-        const parser = new ResponseParser();
         parser.receive(data.toString());
-        // console.log("parser.isFinished", parser.isFinished)
         if (parser.isFinished) {
-          // console.log("parser.response", parser.response);
-          connection.end();
           resolve(parser.response);
+          connection.end();
         }
       })
 
@@ -61,18 +54,12 @@ class Request {
   }
 
   toString() {
-    let stream = [
-      `${this.method} ${this.path} HTTP/1.1\r\n`, 
-      `${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\n\r\n`,
-      `${this.bodyText}`
-    ];
-    // console.log(stream.join(''));
-    return stream.join('');
+    let string = `${this.method} ${this.path} HTTP/1.1\r\n${Object.keys(this.headers)
+      .map((key) => `${key}: ${this.headers[key]}`)
+      .join('\r\n')}\r\n\r\n${this.bodyText}`
+    // console.log(string);
+    return string;
   }
-//     return `${this.method} ${this.path} HTTP/1.1\r
-// ${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r\r
-
-// ${this.bodyText}`}
 }
 
 class ResponseParser {
@@ -95,8 +82,6 @@ class ResponseParser {
   }
 
   get isFinished() {
-    // console.log('get finished')
-    // console.log(this.bodyParser, 'bodyParser')
     return this.bodyParser && this.bodyParser.isFinished;
   }
 
@@ -111,6 +96,7 @@ class ResponseParser {
   }
 
   receive(string) {
+    // console.log('receive', string);
     for (let i = 0; i < string.length; i++) {
       this.receiveChar(string.charAt(i));
     }
@@ -129,15 +115,13 @@ class ResponseParser {
       }
     } else if (this.current === this.WAITING_HEADER_NAME) {
       if (char === ':') {
-        this.current === this.WAITING_HEADER_SPACE;
+        this.current = this.WAITING_HEADER_SPACE;
       } else if (char === '\r') {
         // 如果没有等来冒号只等来\r说明这是一个空行
         this.current = this.WAITING_HEADER_BLOCK_END;
-        // console.log(this.headers, 'headers');
-        // if (this.headers['Transfer-Encoding'] === 'chunked') {
+        if (this.headers['Transfer-Encoding'] === 'chunked') {
           this.bodyParser = new TrunkedBodyParser();
-          // console.log(this.bodyParser, 'bodyParser 222222')
-        // }
+        }
       } else {
         this.headerName += char;
       }
@@ -165,7 +149,6 @@ class ResponseParser {
       }
     } else if (this.current === this.WAITING_BODY) {
       if (this.bodyParser) {
-        // console.log(char, 'bbbbbb')
         this.bodyParser.receiveChar(char);
       }
     }
@@ -185,11 +168,10 @@ class TrunkedBodyParser {
     this.current = this.WAITING_LENGTH;
   }
   receiveChar(char) {
-    console.log('char', char);
-    console.log(this.length, this.current, this.WAITING_LENGTH);
+    console.log('trunked', char)
     if (this.current === this.WAITING_LENGTH) {
       // ???
-      if (char === '\r' || char === '\n') {
+      if (char === '\r') {
         if (this.length === 0) {
           this.isFinished = true;
         }
@@ -223,11 +205,11 @@ class TrunkedBodyParser {
 }
 
 
-void async function(){
+void (async function(){
   let request = new Request({
     method: 'POST',
     host: '127.0.0.1',
-    port: 8088,
+    port: '8088',
     path: '/',
     headers: {
       ["X-Foo2"]: "customed"
@@ -237,10 +219,10 @@ void async function(){
     }
   });
   let response = await request.send();
-  console.log(response)
+  console.log('response', response)
 
   // 现实中是应该做成异步分段处理的
   // 这里为了方便实现，采用一个把body全收回来然后再交给HTML parser的
   let dom = parser.parseHTML(response.body);
-  dom();
-}();
+
+})();
