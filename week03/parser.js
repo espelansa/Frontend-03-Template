@@ -13,7 +13,7 @@ let rules = [];
 function addCSSRules(text) {
   let ast = css.parse(text);
   // 第三个参数space 指定缩进用的空白字符串，用于美化输出
-  console.log(JSON.stringify(ast, null, "  "));
+  // console.log(JSON.stringify(ast, null, "  "));
   rules.push(...ast.stylesheet.rules);
 }
 
@@ -25,8 +25,8 @@ function match(element, selector) {
   }
 
   // 以下逻辑只有三种简单选择器：元素，class 和 id
-  // 要求实现复合选择器
-  // 要求实现支持空格的class选择器
+  // 作业：要求实现复合选择器
+  // 作业：要求实现支持空格的class选择器
   if (selector.charAt(0) === "#") {
     let attr = element.attributes.filter(attr => attr.name === "id")[0];
     if (attr && attr.value === selector.replace("#", "")) {
@@ -83,12 +83,57 @@ function computeCSS(element) {
       }
 
       if (matched) {
-        console.log("Element", element, "matched rule", rule);
+        // console.log("Element", element, "matched rule", rule);
+        let sp = specificity(rule.selectors[0])
+        let computedStyle = element.computedStyle;
+
+        for (let declaration of rule.declarations) {
+          if (!computedStyle[declaration.property]) {
+            computedStyle[declaration.property] = {};
+          }
+          if (!computedStyle[declaration.property].specificity) {
+            computedStyle[declaration.property].value = declaration.value;
+            computedStyle[declaration.property].specificity = sp;
+          } else if (compare(computedStyle[declaration.property].specificity, sp) < 0) {
+            computedStyle[declaration.property].value = declaration.value;
+            computedStyle[declaration.property].specificity = sp;
+          }
+        }
       }
     } 
   }
 }
 
+// 作业：增加复合选择器的解析部分
+function specificity(selector) {
+  let p = [0, 0, 0, 0];
+  let selectorParts = selector.split(" ");
+
+  for (let part of selectorParts) {
+    if (part.charAt(0) === "#") {
+      p[1] += 1;
+    } else if (part.charAt(0) === ".") {
+      p[2] += 1;
+    } else {
+      p[3] += 1;
+    }
+  }
+
+  return p;
+}
+
+function compare(sp1, sp2) {
+  if (sp1[0] - sp2[0]) {
+    return sp1[0] - sp2[0]
+  }
+  if (sp1[1] - sp2[1]) {
+    return sp1[1] - sp2[1]
+  }
+  if (sp1[2] - sp2[2]) {
+    return sp1[2] - sp2[2]
+  }
+  return sp1[3] - sp2[3];
+}
 
 function emit(token) {
   let top = stack[stack.length - 1];
