@@ -1,3 +1,4 @@
+const css = require('css'); 
 const EOF = Symbol("EOF");
 let currentToken = null;
 let currentAttribute = null;
@@ -7,8 +8,86 @@ let currentTextNode = null;
 // 先入后出 => 栈顶是数组最后一个元素
 let stack = [{ type: "document", children: [] }];
 
+
+let rules = [];
+function addCSSRules(text) {
+  let ast = css.parse(text);
+  // 第三个参数space 指定缩进用的空白字符串，用于美化输出
+  console.log(JSON.stringify(ast, null, "  "));
+  rules.push(...ast.stylesheet.rules);
+}
+
+function match(element, selector) {
+  if (!selector || !element.attributes) {
+    // element初始化时都被定义了一个key为attribute，值是一个[]
+    // 所以可用element.attributes来判断是否是一个文本节点
+    return false;
+  }
+
+  // 以下逻辑只有三种简单选择器：元素，class 和 id
+  // 要求实现复合选择器
+  // 要求实现支持空格的class选择器
+  if (selector.charAt(0) === "#") {
+    let attr = element.attributes.filter(attr => attr.name === "id")[0];
+    if (attr && attr.value === selector.replace("#", "")) {
+      return true;
+    } 
+  } else if (selector.charAt(0) === ".") {
+    let attr = element.attributes.filter(attr => attr.name === "class")[0];
+    if (attr && attr.value === selector.replace(".", "")) {
+      return true;
+    } 
+  } else {
+    if (element.tagName === selector) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function computeCSS(element) {
+  // 在computeCSS函数中，必须知道元素的所有父元素才能判断元素与规则是否匹配
+  // 从stack可以获得本元素所有的父元素
+  // 首先获取的是当前元素，获得和计算父元素匹配的顺序是从内向外
+  let elements = stack.slice().reverse();
+
+  if (!element.computedStyle) {
+    element.computedStyle = {};
+  }
+
+  for (let rule of rules) {
+    // 老师代码里略过了逗号的情况
+    // 经过观察发现就是rule.selectors元素不止一个，则可以进行遍历
+    // eg. rule.selectors = ["div .abc",  "div .txt"]
+    let selectorParts = rule.selectors[0].split(" ").reverse();
+
+    if (!match(element, selectorParts[0])) {
+      continue;
+    }
+
+    let matched = false;
+
+    // 用j来表示当前的选择器的位置
+    let j = 1;
+    for (let i =0; i < elements.length; i++) {
+      if (match(elements[i], selectorParts[j])) {
+        j++;
+      }
+    }
+
+    if (j >= selectorParts.length) {
+      matched = true;
+    }
+
+    if (matched) {
+      console.log("Element", element, "matched rule", rule);
+    }
+  }
+}
+
+
 function emit(token) {
-  
   let top = stack[stack.length - 1];
 
   if (token.type === "startTag") {
@@ -29,6 +108,9 @@ function emit(token) {
       }
     }
 
+    // 采用一个在startTag的时候去判断哪些标签匹配了css rules的一种方式
+    computeCSS(element);
+
     // 把当前元素挂在其父元素上
     top.children.push(element);
     element.parent = top;
@@ -39,10 +121,17 @@ function emit(token) {
     }
 
     currentTextNode = null;
+
   } else if (token.type === "endTag") {
     if (top.tagName !== token.tagName) {
       throw new Error('Tag start end doesn\'t match!');
     } else {
+      // 在engTag这里如果遇到的是style标签时，就把它的子元素文本节点拿出来，把它的内容作为我们的css的内容。
+      // 执行添加CSS规则的操作
+      if (top.tagName === 'style') {
+        // top.children[0]就是那个css的文本节点
+        addCSSRules(top.children[0].content);
+      }
       stack.pop();
     }
     currentTextNode = null;
