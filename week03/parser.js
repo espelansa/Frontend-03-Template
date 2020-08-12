@@ -60,29 +60,32 @@ function computeCSS(element) {
     // 老师代码里略过了逗号的情况
     // 经过观察发现就是rule.selectors元素不止一个，则可以进行遍历
     // eg. rule.selectors = ["div .abc",  "div .txt"]
-    let selectorParts = rule.selectors[0].split(" ").reverse();
+    for (let selector of rule.selectors) {
+      let selectorParts = selector.split(" ").reverse();
 
-    if (!match(element, selectorParts[0])) {
-      continue;
-    }
-
-    let matched = false;
-
-    // 用j来表示当前的选择器的位置
-    let j = 1;
-    for (let i =0; i < elements.length; i++) {
-      if (match(elements[i], selectorParts[j])) {
-        j++;
+      if (!match(element, selectorParts[0])) {
+        continue;
       }
-    }
 
-    if (j >= selectorParts.length) {
-      matched = true;
-    }
+      // 当且仅当当前元素相同进入后面的代码
+      let matched = false;
 
-    if (matched) {
-      console.log("Element", element, "matched rule", rule);
-    }
+      // 用j来表示当前的选择器的位置
+      let j = 1;
+      for (let i =0; i < elements.length; i++) {
+        if (match(elements[i], selectorParts[j])) {
+          j++;
+        }
+      }
+
+      if (j >= selectorParts.length) {
+        matched = true;
+      }
+
+      if (matched) {
+        console.log("Element", element, "matched rule", rule);
+      }
+    } 
   }
 }
 
