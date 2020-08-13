@@ -24,6 +24,17 @@ function match(element, selector) {
 
   // 以下逻辑只有三种简单选择器：元素，class 和 id
   // 作业：要求实现复合选择器
+  if (selector.match(/^[a-zA-Z]+([\.|#][a-zA-Z_-][\w-]+)+$/)) {
+    // "div.a".match(/^[a-z]+([\.|#][a-z]+)+$/);
+    // ["div.a", ".a", index: 0, input: "div.a", groups: undefined]
+  }
+
+
+
+
+
+
+
   // 作业：要求实现支持空格的class选择器
   if (selector.charAt(0) === "#") {
     let attr = element.attributes.filter(attr => attr.name === "id")[0];
