@@ -12,8 +12,6 @@ let stack = [{ type: "document", children: [] }];
 let rules = [];
 function addCSSRules(text) {
   let ast = css.parse(text);
-  // 第三个参数space 指定缩进用的空白字符串，用于美化输出
-  // console.log(JSON.stringify(ast, null, "  "));
   rules.push(...ast.stylesheet.rules);
 }
 
