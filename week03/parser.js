@@ -15,6 +15,24 @@ function addCSSRules(text) {
   rules.push(...ast.stylesheet.rules);
 }
 
+function splitSelector(selector) {
+  let selectors = [];
+
+  function split() {
+    if (selector.match(/^[a-zA-Z]+([\.|#][a-zA-Z_-][\w-]+)+$/)) {
+      selectors.push(RegExp.$1);
+      selector = selector.replace(RegExp.$1, '');
+      split(selector);
+    } else {
+      selectors.push(selector);
+    }
+  }
+  
+  split(selector);
+
+  return selectors;
+}
+
 function match(element, selector) {
   if (!selector || !element.attributes) {
     // element初始化时都被定义了一个key为attribute，值是一个[]
@@ -24,35 +42,34 @@ function match(element, selector) {
 
   // 以下逻辑只有三种简单选择器：元素，class 和 id
   // 作业：要求实现复合选择器
-  if (selector.match(/^[a-zA-Z]+([\.|#][a-zA-Z_-][\w-]+)+$/)) {
-    // "div.a".match(/^[a-z]+([\.|#][a-z]+)+$/);
-    // ["div.a", ".a", index: 0, input: "div.a", groups: undefined]
-  }
+  let selectors = splitSelector(selector);
 
-
-
-
-
-
-
-  // 作业：要求实现支持空格的class选择器
-  if (selector.charAt(0) === "#") {
-    let attr = element.attributes.filter(attr => attr.name === "id")[0];
-    if (attr && attr.value === selector.replace("#", "")) {
-      return true;
-    } 
-  } else if (selector.charAt(0) === ".") {
-    let attr = element.attributes.filter(attr => attr.name === "class")[0];
-    if (attr && attr.value === selector.replace(".", "")) {
-      return true;
-    } 
-  } else {
-    if (element.tagName === selector) {
-      return true;
+  for (let selector of selectors) {
+    if (selector.charAt(0) === "#") {
+      let attr = element.attributes.filter(attr => attr.name === "id")[0];
+      if (attr && attr.value === selector.replace("#", "")) {
+        return true;
+      } 
+    } else if (selector.charAt(0) === ".") {
+      // 作业：要求实现支持空格的class选择器
+      // 遍历element的class
+      let attrs = element.attributes.filter(attr => attr.name === "class")[0];
+      let names = attrs && attrs.name && attrs.name.split(" ");
+      // attrs = attrs && attrs.split(" ");
+      if (names) {
+        for (let attr of names) {
+          if (attr && attr.value === selector.replace(".", "")) {
+            return true;
+          }
+        }
+      }
+    } else {
+      if (element.tagName === selector) {
+        return true;
+      }
     }
+    return false;
   }
-
-  return false;
 }
 
 function computeCSS(element) {
@@ -116,15 +133,21 @@ function computeCSS(element) {
 // 作业：增加复合选择器的解析部分
 function specificity(selector) {
   let p = [0, 0, 0, 0];
-  let selectorParts = selector.split(" ");
+  let selectorParts = selector.split(" "); 
 
-  for (let part of selectorParts) {
-    if (part.charAt(0) === "#") {
-      p[1] += 1;
-    } else if (part.charAt(0) === ".") {
-      p[2] += 1;
-    } else {
-      p[3] += 1;
+  for (let selector of selectorParts) {
+    console.log('selector', selector)
+    let selectors = splitSelector(selector);
+
+    for (let part of selectors) {
+      console.log('part', part)
+      if (part.charAt(0) === "#") {
+        p[1] += 1;
+      } else if (part.charAt(0) === ".") {
+        p[2] += 1;
+      } else {
+        p[3] += 1;
+      }
     }
   }
 
