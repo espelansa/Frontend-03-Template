@@ -33,6 +33,33 @@ function splitSelector(selector) {
   return selectors;
 }
 
+function decide(element, selector) {
+  if (selector.charAt(0) === "#") {
+    let attr = element.attributes.filter(attr => attr.name === "id")[0];
+    if (attr && attr.value === selector.replace("#", "")) {
+      return true;
+    } 
+  } else if (selector.charAt(0) === ".") {
+    // 作业：要求实现支持空格的class选择器
+    // 遍历 element 的 class
+    let attrs = element.attributes.filter(attr => attr.name === "class")[0];
+    let names = attrs && attrs.value && attrs.value.split(" ");
+
+    if (names) {
+      for (let attr of names) {
+        if (attr === selector.replace(".", "")) {
+          return true;
+        }
+      }
+    }
+  } else {
+    if (element.tagName === selector) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function match(element, selector) {
   if (!selector || !element.attributes) {
     // element初始化时都被定义了一个key为attribute，值是一个[]
@@ -40,39 +67,12 @@ function match(element, selector) {
     return false;
   }
 
-  if (selector.indexOf(">") >=0) {
-    // ....
-  }
-
-  // 以下逻辑只有三种简单选择器：元素，class 和 id
+  // 原先逻辑只有三种简单选择器：元素，class 和 id
   // 作业：要求实现复合选择器
   let selectors = splitSelector(selector);
 
   for (let selector of selectors) {
-    if (selector.charAt(0) === "#") {
-      let attr = element.attributes.filter(attr => attr.name === "id")[0];
-      if (attr && attr.value === selector.replace("#", "")) {
-        return true;
-      } 
-    } else if (selector.charAt(0) === ".") {
-      // 作业：要求实现支持空格的class选择器
-      // 遍历 element 的 class
-      let attrs = element.attributes.filter(attr => attr.name === "class")[0];
-      let names = attrs && attrs.value && attrs.value.split(" ");
-
-      if (names) {
-        for (let attr of names) {
-          if (attr === selector.replace(".", "")) {
-            return true;
-          }
-        }
-      }
-    } else {
-      if (element.tagName === selector) {
-        return true;
-      }
-    }
-    return false;
+    decide(element, selector);
   }
 }
 
@@ -88,16 +88,12 @@ function computeCSS(element) {
 
   for (let rule of rules) {
     // 补充选择器一：element, element [Done]
-    // 经过观察发现解析完就是rule.selectors元素不止一个，则可以进行遍历
-    // eg. rule.selectors = ["div .abc",  "div .txt"]
-
-    // 补充选择器二：elementA+elementB
-    // 思路：elementA.parent.children里找到elementA的index, 然后在这个index之后的elementB元素中去找是否match
-
-    // 补充选择器三：elementA>elementB
-    // 思路：找elementB的parent, 看是不是elementA
-
     for (let selector of rule.selectors) {
+
+      // if (selector.match(/([\S\s]+)([>|+])([\s\S]+)/)) {
+      //   selector = [RegExp.$1.trim(), RegExp.$2, RegExp.$3.trim()].join("");
+      // }
+
       let selectorParts = selector.split(" ").reverse();
 
       if (!match(element, selectorParts[0])) {
