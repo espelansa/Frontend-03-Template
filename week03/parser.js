@@ -52,13 +52,13 @@ function match(element, selector) {
       } 
     } else if (selector.charAt(0) === ".") {
       // 作业：要求实现支持空格的class选择器
-      // 遍历element的class
+      // 遍历 element 的 class
       let attrs = element.attributes.filter(attr => attr.name === "class")[0];
-      let names = attrs && attrs.name && attrs.name.split(" ");
-      // attrs = attrs && attrs.split(" ");
+      let names = attrs && attrs.value && attrs.value.split(" ");
+
       if (names) {
         for (let attr of names) {
-          if (attr && attr.value === selector.replace(".", "")) {
+          if (attr === selector.replace(".", "")) {
             return true;
           }
         }
