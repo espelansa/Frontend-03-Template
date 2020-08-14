@@ -136,11 +136,9 @@ function specificity(selector) {
   let selectorParts = selector.split(" "); 
 
   for (let selector of selectorParts) {
-    console.log('selector', selector)
     let selectors = splitSelector(selector);
 
     for (let part of selectors) {
-      console.log('part', part)
       if (part.charAt(0) === "#") {
         p[1] += 1;
       } else if (part.charAt(0) === ".") {
