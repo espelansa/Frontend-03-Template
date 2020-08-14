@@ -83,9 +83,16 @@ function computeCSS(element) {
   }
 
   for (let rule of rules) {
-    // 老师代码里略过了逗号的情况
-    // 经过观察发现就是rule.selectors元素不止一个，则可以进行遍历
+    // 补充选择器一：element, element [Done]
+    // 经过观察发现解析完就是rule.selectors元素不止一个，则可以进行遍历
     // eg. rule.selectors = ["div .abc",  "div .txt"]
+
+    // 补充选择器二：elementA+elementB
+    // 思路：elementA.parent.children里找到elementA的index, 然后在这个index之后的elementB元素中去找是否match
+
+    // 补充选择器三：elementA>elementB
+    // 思路：找elementB的parent, 看是不是elementA
+
     for (let selector of rule.selectors) {
       let selectorParts = selector.split(" ").reverse();
 
