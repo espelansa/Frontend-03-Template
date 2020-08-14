@@ -40,6 +40,10 @@ function match(element, selector) {
     return false;
   }
 
+  if (selector.indexOf(">") >=0) {
+    // ....
+  }
+
   // 以下逻辑只有三种简单选择器：元素，class 和 id
   // 作业：要求实现复合选择器
   let selectors = splitSelector(selector);
