@@ -36,6 +36,7 @@ function layout(element) {
   let style = elementStyle;
   // width和height空的都设为 null
   ["width", "height"].forEach(prop => {
+    // ""是怎么来的
     if (style[prop] === "auto" || style[prop] === "") {
       style[prop] = null;
     }
@@ -117,4 +118,69 @@ function layout(element) {
 
   // 如果为true则父元素主轴没有设置尺寸，由子元素自行撑开
   let isAutoMainSize = false;
+  if (!style[mainSize]) {
+    elementStyle[mainSize] = 0;
+    // items是type为element的children
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i];
+      let itemStyle = getStyle(item);
+      if (itemStyle[mainSize] !== null || itemStyle[mainSize] !== (void 0)) {
+        elementStyle[mainSize] = elementStyle[mainSize] += item[mainSize]
+      }
+    }
+    isAutoMainSize = true;
+  }
+
+  let flexLine = [];
+  let flexLines = [flexLine];
+
+  // 主轴剩余空间
+  let mainSpace = elementStyle[mainSize];
+  let crossSpace = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i];
+    let itemStyle = getStyle(item);
+
+    if (itemStyle[mainSize] === null) {
+      itemStyle[mainSize] = 0;
+    }
+
+    if (itemStyle.flex) {
+      flexLine.push(item);
+      // style 就是 elementStyle;
+    } else if (style.flexWrap === 'nowrap' && isAutoMainSize) {
+      mainSpace -= itemStyle[mainSize];
+      if (itemStyle[crossSize] !== null || itemStyle[crossSize] !== (void 0)) {
+        corssSize = Math.max(crossSpace, itemStyle[corssSize])
+        flexLine.push(item);
+      }
+    } else {
+      // 换行的逻辑
+      if (itemStyle[mainSize] > style[mainSize]) {
+        itemStyle[mainSize] = style[mainSize];
+      }
+      if (mainSpace < itemStyle[mainSize]) {
+        flexLine.mainSpace = mainSpace;
+        flexLine.crossSpace = crossSpace;
+        flexLine = [item];
+        flexLines.push(flexLine);
+        mainSpace = style[mainSpace];
+        crossSpace = 0;
+      } else {
+        flexLine.push(item);
+      }
+
+      if (itemStyle[crossSize] !== null && itemStyle[crossSize] !== (void 0)) {
+        crossSpace = Math.max(crossSpace, itemStyle[corssSize])        
+      }
+
+      mainSpace -= itemStyle[mainSize];
+    }
+  }
+  flexLine.mainSpace = mainSpace;
+
+  console.log(items);
 }
+
+module.exports = layout;
