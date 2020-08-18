@@ -71,9 +71,7 @@ function match(element, selector) {
   // 作业：要求实现复合选择器
   let selectors = splitSelector(selector);
 
-  for (let selector of selectors) {
-    decide(element, selector);
-  }
+  return selectors.every(selector => decide(element, selector));
 }
 
 function computeCSS(element) {
@@ -132,6 +130,8 @@ function computeCSS(element) {
             computedStyle[declaration.property].specificity = sp;
           }
         }
+
+        element.computedStyle = computedStyle;
       }
     } 
   }

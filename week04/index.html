@@ -1,25 +1,24 @@
 <html lang="en"id="box">
 <head>
    <style>
-      span.abc {
-         color: blueviolet;
-         font-size: 15px;
+      #container {
+         width: 500px;
+         height: 300px;
+         display: flex;
       }
-      div span {
-         color: yellowgreen;
+      #container #myid {
+         width: 200px;
       }
-      .doc {
-         font-size: 20px;
+      #container .c1 {
+         flex: 1;
       }
    </style>
    <title>Html Document</title>
 </head>
 <body>
-   <div>
-      <p id=title>Paragraph</p>
-      <img src="" alt="" />
-      <span class="abc">ABC Company</span>
-      <span class="txt doc">Text <i>litral</i></span>
+   <div id="container">
+      <div id="myid"></div>
+      <div class="c1"></div>
    </div>
 </body>
 </html>

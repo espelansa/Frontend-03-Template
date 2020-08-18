@@ -220,6 +220,7 @@ void (async function(){
   // 现实中是应该做成异步分段处理的
   // 这里为了方便实现，采用一个把body全收回来然后再交给HTML parser的
   let dom = parser.parseHTML(response.body);
-  console.log(JSON.stringify(dom, null, "  "));
+  console.log(dom, 'DOM')
+  // console.log(JSON.stringify(dom, null, "  "));
 
 })();

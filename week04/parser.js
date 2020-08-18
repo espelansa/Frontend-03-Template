@@ -73,9 +73,7 @@ function match(element, selector) {
   // 作业：要求实现复合选择器
   let selectors = splitSelector(selector);
 
-  for (let selector of selectors) {
-    decide(element, selector);
-  }
+  return selectors.every(selector => decide(element, selector));
 }
 
 function computeCSS(element) {
@@ -134,6 +132,8 @@ function computeCSS(element) {
             computedStyle[declaration.property].specificity = sp;
           }
         }
+
+        element.computedStyle = computedStyle;
       }
     } 
   }
@@ -197,6 +197,7 @@ function emit(token) {
 
     // 采用一个在startTag的时候去判断哪些标签匹配了css rules的一种方式
     computeCSS(element);
+    layout(element);
 
     // 把当前元素挂在其父元素上
     top.children.push(element);
@@ -464,5 +465,5 @@ module.exports.parseHTML = function parseHTML(html) {
   for (let c of html) {
     state = state(c)
   }
-  console.log(stack[0]);
+  return stack[0];
 }
