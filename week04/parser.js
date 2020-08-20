@@ -197,11 +197,12 @@ function emit(token) {
 
     // 采用一个在startTag的时候去判断哪些标签匹配了css rules的一种方式
     computeCSS(element);
-    layout(element);
 
     // 把当前元素挂在其父元素上
     top.children.push(element);
     element.parent = top;
+
+    layout(element);
 
     // 自封闭标签存入就要立马从栈里取出，所以不需要push入栈
     if (!token.isSelfClosing) {

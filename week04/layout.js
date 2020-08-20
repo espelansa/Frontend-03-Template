@@ -30,6 +30,7 @@ function layout(element) {
     return;
   }
   let items = element.children.filter(e => e.type === 'elememt');
+  // ???
   items.sort((a, b) => (a.order || 0) - (b.order || 0));
 
   let style = elementStyle;
