@@ -202,8 +202,6 @@ function emit(token) {
     top.children.push(element);
     element.parent = top;
 
-    layout(element);
-
     // 自封闭标签存入就要立马从栈里取出，所以不需要push入栈
     if (!token.isSelfClosing) {
       stack.push(element);
@@ -221,6 +219,7 @@ function emit(token) {
         // top.children[0]就是那个css的文本节点
         addCSSRules(top.children[0].content);
       }
+      layout(top);
       stack.pop();
     }
     currentTextNode = null;

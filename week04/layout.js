@@ -30,7 +30,7 @@ function layout(element) {
     return;
   }
   let items = element.children.filter(e => e.type === 'elememt');
-  // ???
+  // 支持一个特殊的order属性 
   items.sort((a, b) => (a.order || 0) - (b.order || 0));
 
   let style = elementStyle;
@@ -50,6 +50,9 @@ function layout(element) {
   }
   if (!style.justifyContent || style.justifyContent === "auto") {
     style.justifyContent = "flex-start";
+  }
+  if (!style.flexWrap || style.flexWrap === "auto") {
+    style.flexWrap = "nowrap";
   }
   if (!style.alignContent || style.alignContent === "auto") {
     style.alignContent = "stretch";
@@ -111,6 +114,7 @@ function layout(element) {
     crossStart = crossEnd;
     crossEnd = tmp;
     crossSign = -1;
+    // 少一个crossBase 
   } else {
     crossBase = 0;
     crossSign = 1;
@@ -136,8 +140,10 @@ function layout(element) {
 
   // 主轴剩余空间
   let mainSpace = elementStyle[mainSize];
+  // 默认一行且“充满”
   let crossSpace = 0;
 
+  // items是type为element的children
   for (let i = 0; i < items.length; i++) {
     let item = items[i];
     let itemStyle = getStyle(item);
