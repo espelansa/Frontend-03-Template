@@ -12,6 +12,18 @@
       #container .c1 {
          flex: 1;
       }
+      .large {
+         width: 500px;
+         display: flex;
+      }
+      .large .bigger {
+         width: 600px;
+         height: 100px;
+      }
+      .large .left, .large .right {
+         width: 300px;
+         height: 220px;
+      }
    </style>
    <title>Html Document</title>
 </head>
@@ -19,6 +31,11 @@
    <div id="container">
       <div id="myid"></div>
       <div class="c1"></div>
+   </div>
+   <div class="large">
+      <div class="bigger"></div>
+      <div class="left"></div>
+      <div class="right"></div>
    </div>
 </body>
 </html>
