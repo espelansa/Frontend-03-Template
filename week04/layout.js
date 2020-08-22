@@ -114,7 +114,6 @@ function layout(element) {
     crossStart = crossEnd;
     crossEnd = tmp;
     crossSign = -1;
-    // 少一个crossBase 
   } else {
     crossBase = 0;
     crossSign = 1;
@@ -361,7 +360,7 @@ function layout(element) {
       }
       if (align === "stretch") {
         itemStyle[crossStart] = crossBase;
-        itemStyle[crossEnd] = crossBase + crossSign * ((style[crossSize] !== undefined) ? style[crossSize] : crossSpace) // ???
+        itemStyle[crossEnd] = crossBase + crossSign * ((itemStyle[crossSize] !== undefined) ? itemStyle[crossSize] : items.crossSpace)
         itemStyle[crossSize] = crossSign * (itemStyle[crossEnd] - itemStyle[crossStart])
       }
     }

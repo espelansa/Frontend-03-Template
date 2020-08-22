@@ -1,5 +1,7 @@
 const net = require('net');
 const parser = require('./parser.js');
+const images = require('images');
+const render = require('./render.js');
 
 class Request {
   constructor(options) {
@@ -221,6 +223,11 @@ void (async function(){
   // 这里为了方便实现，采用一个把body全收回来然后再交给HTML parser的
   let dom = parser.parseHTML(response.body);
   console.log(dom, 'DOM')
-  // console.log(JSON.stringify(dom, null, "  "));
+
+  let viewpoint = images(800, 600);
+
+  render(viewpoint, dom)
+
+  viewpoint.save("viewpoint.jpg")
 
 })();
