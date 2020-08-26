@@ -1,6 +1,10 @@
-# 学习笔记
+## 本周总结
 
-## CSS
+## 思考题
+为什么 first-letter 可以设置 float 之类的，而 first-line 不行呢？
+
+
+## 学习笔记
 
 ### at-rules
 
@@ -42,6 +46,7 @@ s = 0 * N^3 + 2 * N^2 + 1 * N^1 + 1 * N^0
 >2. count the number of class selectors, attributes selectors, and pseudo-classes in the selector (= b)  
 >3. count the number of type selectors and pseudo-elements in the selector (= c)  
 >4. ignore the universal selector  
+>5. Selectors inside the negation pseudo-class are counted like any other, but the negation itself does not count as a pseudo-class.
 
 - selector
   - \>
