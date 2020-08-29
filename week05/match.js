@@ -9,12 +9,7 @@
 */
 
 function match(selector, element) {
-	console.log('match', selector)
-	console.log('match', element)
-	if (selector === element.type) {
-		return true;
-	}
-	return false;
+	return onType(selector, element);
 }
 
 function onType(selector, element) {
@@ -24,50 +19,24 @@ function onType(selector, element) {
 	return false;
 }
 
-let sel = "a b"
-let ele = {
-	type: 'a',
-	children: [
-		{ type: 'e' },
-		{ type: 'd' },
-		{ type: 'b' }
-	]
-}
 
+// 从根部网上找更容易
+// 当且仅当selector.trim()中有" "才访问此函数
 function onDescendant(selector, element) {
-	console.log('onDesc', selector, element);
-	let currentElement = element;
-	let children = currentElement.children;
-	if (selector.trim().indexOf(" ") > 0) {
-		let selectors = selector.trim().split(" ");
-		for (let selector of selectors) {
-			if (match(selector, currentElement)) {
-				selectors.shift();
-				if (children) {
-					for (let child of children) {
-						currentElement = child;
-						onDescendant(selectors.join(" "), currentElement);
-					}
-				} else {
-					// element没有下一层时
-					if (selectors.length === 0) {
-						return true
-					}
-					return false;
-				}	
+	let currenctElement = element;
+	let selectors = selector.trim().split(" ").reverse();
+	for (let selector of selectors) {
+		if (match(selector, currenctElement)) {
+			// selectors.shift();
+			if (!currenctElement.parentNode) {
+				return false;
 			}
-			return false;
-		}
-	} else {
-		// selector没有下一层时
-		if (match(selector, element)) {
-			return true;
+			currenctElement = currenctElement.parentNode;
 		}
 	}
-	return false;
 }
 
-console.log(onDescendant(sel, ele));
+// console.log(onDescendant(sel, ele));	
 
 function onChild(selector, element) {
 

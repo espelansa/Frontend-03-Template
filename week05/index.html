@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Match Function</title>
+</head>
+<body>
+	<div id="b">
+		<p id="a">123</p>
+	</div>
+	<script src="./match.js"></script>
+	<script>
+		let element = document.getElementById('b');
+		let selector = "div p";
+		console.log(onDescendant(selector, element));
+	</script>
+</body>
+</html>
