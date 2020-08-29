@@ -1,8 +1,16 @@
-## 本周总结
-
 ## 思考题
-为什么 first-letter 可以设置 float 之类的，而 first-line 不行呢？
+#### 为什么 first-letter 可以设置 float 之类的，而 first-line 不行呢？
+个人理解如下：    
+因为 first-line 伪类的虚拟start tag是插在它被绑定的元素的start tag的右侧的。所以如果给 first-line 设置float之类的属性，会让其脱离原来的文档流，那么会重新赋予块元素（原来）的第二行虚拟tag，如此重复不仅无法实现想要的样式，且造成页面不停重排，消耗性能。
+而 first-letter 伪类的虚拟tag只要把那个圈出来的字包括住即可，所以不受影响。
+> Note that the length of the first line depends on a number of factors, including the width of the page, the font size, etc.    
+first-line。
+> Note that the :first-letter pseudo-element tags abut the content (i.e., the initial character), while the :first-line pseudo-element start tag is inserted right after the start tag of the element to which it is attached.
 
+```html
+<p><first-line><first-letter>S</first-letter>ome students...</first-line>
+play games on the playground.</p>
+```
 
 ## 学习笔记
 
