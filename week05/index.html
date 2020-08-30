@@ -7,13 +7,23 @@
 </head>
 <body>
 	<div id="b">
-		<p id="a">123</p>
+		<div>line</div>
+		<p id="a">
+			<div>
+				<span id="span">ABC</span>
+				<span>123</span>
+				<p id="2">456</p>
+				<div>text</div>
+				
+			</div>
+			
+		</p>
 	</div>
 	<script src="./match.js"></script>
 	<script>
-		let element = document.getElementById('b');
-		let selector = "div p";
-		console.log(onDescendant(selector, element));
+		let element = document.getElementById('2');
+		let selector = "div+p";
+		console.log(onAdjacent(selector, element));
 	</script>
 </body>
 </html>
