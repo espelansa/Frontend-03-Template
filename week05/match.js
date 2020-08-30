@@ -7,9 +7,22 @@
 * 6. id
 */
 
+// 传入之前把所有空格都已排除在外，只留下div.top#btn[target]等形态
+function splitSelector(selector) {
+	let selectors = [selector];
+	for (let i = 0; i < selectors.length; i++) {
+		let item = selectors[i];
+		if (item.indexOf(".")) {
+			
+		}
+		
+	}
+}
+
 // simple match
 function simpleMatch(selector, element) {
-	return onType(selector, element);
+	
+
 }
 
 function onType(selector, element) {
@@ -18,6 +31,35 @@ function onType(selector, element) {
 		return true;
 	}
 	return false;
+}
+
+// 除了简写的class
+function onAttribute(selector, element) {
+	if (selector.match(/^([\S\s]+)\[([\S\s]+)\]$/)) {
+		const array = element.attributes;
+		for (let i = 0; i < array.length; i++) {
+			if (array[i].name === RegExp.$2 && simpleMatch(RegExp.$1, element)) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+function onId(selector, element) {
+	// console.log(element.getAttribute("id"))
+	if (selector.slice(1) === element.getAttribute("id")) {
+		return true
+	}
+	return false
+}
+
+function onClass(selector, element) {
+	console.log(element.getAttribute("class"))
+	if (selector.slice(1) === element.getAttribute("class")) {
+		return true
+	}
+	return false
 }
 
 function father(selector, element) {
@@ -78,4 +120,6 @@ function onAdjacent(selector, element) {
 		return false;
 	}
 }
+
+
 

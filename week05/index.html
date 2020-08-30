@@ -12,7 +12,7 @@
 			<div>
 				<span id="span">ABC</span>
 				<span>123</span>
-				<p id="2">456</p>
+				<p id="2" class="red" data-right="3">456</p>
 				<div>text</div>
 				
 			</div>
@@ -22,8 +22,8 @@
 	<script src="./match.js"></script>
 	<script>
 		let element = document.getElementById('2');
-		let selector = "div+p";
-		console.log(onAdjacent(selector, element));
+		let selector = "p[data-right]";
+		console.log(onClass(selector, element));
 	</script>
 </body>
 </html>
