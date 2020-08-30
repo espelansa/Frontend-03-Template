@@ -9,14 +9,18 @@
 
 // 传入之前把所有空格都已排除在外，只留下div.top#btn[target]等形态
 function splitSelector(selector) {
-	let selectors = [selector];
-	for (let i = 0; i < selectors.length; i++) {
-		let item = selectors[i];
-		if (item.indexOf(".")) {
-			
+	let selectors = [];
+	let str = "";
+	for (let char of selector) {
+		if (char === "." || char === "#" || char === "[") {
+			if (str) {
+				selectors.push(str);
+				str = ""
+			}
 		}
-		
+		str += char;
 	}
+	return selectors;
 }
 
 // simple match
