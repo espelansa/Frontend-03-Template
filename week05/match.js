@@ -115,17 +115,39 @@ function onDescendant(selector, element) {
 
 // 以 > 逻辑为例
 function onChild(selector, element) {
-	if (selector.simpleMatch(/^([\S\s]+)>([\S\s]+)$/)) {
-		// RegExp.$1.trim() RegExp.$2.trim() 
-		if (simpleMatch(RegExp.$2.trim(), element) && simpleMatch(RegExp.$1.trim(), element.parentNode)) {
-			return true;
+	// if (selector.match(/^([\S\s]+)>([\S\s]+)$/)) {
+	// 	// RegExp.$1.trim() RegExp.$2.trim() 
+	// 	if (simpleMatch(RegExp.$2.trim(), element) && simpleMatch(RegExp.$1.trim(), element.parentNode)) {
+	// 		return true;
+	// 	}
+	// 	return false;
+	// }
+	// let index = selector.lastIndexOf(">");
+	// if (index < 0) {
+	// 	return simpleMatch(selector, element);
+	// }
+	// if (!element) {
+	// 	return false;
+	// }
+	// if (simpleMatch(selector.slice(index + 1), element)) {
+	// 	return onChild(selector.slice(0, index), element.parentNode);
+	// } else {
+	// 	return false;
+	// }
+	let selectors = selector.split(">").reverse();
+	let currentNode = element;
+	for (let i = 0; i < selectors.length; i++) {
+		if (!simpleMatch(selectors[i], currentNode)) {
+			return false;
+		} else {
+
 		}
-		return false;
+		
 	}
 }
 
 function onAdjacent(selector, element) {
-	if (selector.simpleMatch(/^([\S\s]+)\+([\S\s]+)$/)) {
+	if (selector.match(/^([\S\s]+)\+([\S\s]+)$/)) {
 		const array = element.parentNode.childNodes; // 类数组对象
 		for (let i = 0; i < array.length; i++) {
 			if (!array[i].tagName) continue;
@@ -140,6 +162,57 @@ function onAdjacent(selector, element) {
 			}
 		}
 		return false;
+	}
+}
+
+// 重组复杂的selector, 删除多余的空格
+function reArrange(complexSelector) {
+	const array = complexSelector.split(" ").filter(value => !!value);
+	let str = "";
+	for (let i = 0; i < array.length; i++) {
+		let item = array[i];
+		if (item[0] === ">" || item[0] === "+") {
+			str += item;
+		} else if (item[item.length - 1] === ">" || item[item.length - 1] === "+") {
+			str += item;
+		} else {
+			if (str[str.length - 1] === ">" || str[str.length - 1] === "+") {
+				str += item
+			} else {
+				str = str + " " + item
+			}
+		}
+	}
+	return str.split(" ")
+}
+
+
+// 针对的是 > + 混排
+function compare(selector, element) {
+	let cIndex = selector.lastIndexOf(">");
+	let aIndex = selector.lastIndexOf("+");
+	if (cIndex > aIndex) {
+		if (!onChild(selector.slice(aIndex + 1), element)) {
+			return false;
+		} else {
+			return compare(selector.slice(0, aIndex), element)
+		}
+	} else if (aIndex > cIndex) {
+		if (!onAdjacent(selector.slice(cIndex + 1), element)) {
+			return false;
+		} else {
+			return compare(selector.slice(0, cIndex), element)
+		}
+	} else {
+		return true;
+	}
+}
+
+function match(selector, element) {
+	const selectors = reArrange(selector);
+	for (let i = 0; i < selectors.length; i++) {
+		
+		
 	}
 }
 
