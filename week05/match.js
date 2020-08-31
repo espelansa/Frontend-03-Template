@@ -101,25 +101,15 @@ function onChild(selector, element) {
 }
 
 function onAdjacent(selector, element) {
-	console.log(selector,element)
-	const selectors = selector.split("+");
+	const selectors = selector.split("+").reverse();
 	const nodes = element.parentNode.childNodes; // 类数组对象
 
-	for (let i = 0; i < nodes.length; i++) {
+	for (let i = nodes.length - 1; i >= 0; i--) {
 		const node = nodes[i];
-		console.log(selectors[0], 'selectors[0]')
 		if (!node.tagName) continue;
 		if (simpleMatch(selectors[0], node)) {
-			console.log('node', node)
-			selectors.shift();
-			console.log(selectors, 'selectors')
-			// 这里的逻辑还有漏洞
 			if (selectors.length === 0) {
-				if (node === element) {
-					return true
-				} else {
-					return false;
-				}		
+				return true		
 			}
 			continue;
 		}
