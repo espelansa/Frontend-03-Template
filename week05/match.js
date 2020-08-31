@@ -20,17 +20,36 @@ function splitSelector(selector) {
 		}
 		str += char;
 	}
+	selectors.push(str);
 	return selectors;
 }
 
 // simple match
 function simpleMatch(selector, element) {
-	
-
+	const selectors = splitSelector(selector);
+	for (const item of selectors) {
+		if (item[0] === ".") {
+			if (!onClass(item, element)) {
+				return false;
+			}
+		} else if (item[0] === "#") {
+			if (!onId(item, element)) {
+				return false;
+			}
+		} else if (item[0] === "[") {
+			if (!onAttribute(item, element)) {
+				return false;
+			}
+		} else {
+			if (!onType(item, element)) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 function onType(selector, element) {
-	console.log('onType', selector, element.tagName)
 	if (selector === element.tagName.toLowerCase()) {
 		return true;
 	}
@@ -39,10 +58,10 @@ function onType(selector, element) {
 
 // 除了简写的class
 function onAttribute(selector, element) {
-	if (selector.match(/^([\S\s]+)\[([\S\s]+)\]$/)) {
+	if (selector.match(/^\[([\S\s]+)\]$/)) {
 		const array = element.attributes;
 		for (let i = 0; i < array.length; i++) {
-			if (array[i].name === RegExp.$2 && simpleMatch(RegExp.$1, element)) {
+			if (array[i].name === RegExp.$1) {
 				return true;
 			}
 		}
@@ -51,7 +70,6 @@ function onAttribute(selector, element) {
 }
 
 function onId(selector, element) {
-	// console.log(element.getAttribute("id"))
 	if (selector.slice(1) === element.getAttribute("id")) {
 		return true
 	}
