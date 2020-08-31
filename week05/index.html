@@ -8,22 +8,22 @@
 <body>
 	<div id="b">
 		<div>line</div>
-		<p id="a">
+		<section id="a">
 			<div>
 				<span id="span">ABC</span>
 				<span>123</span>
 				<p id="2" class="red" data-right="3">456</p>
 				<div>text</div>
-				
+				<div class="last" id="last"></div>
 			</div>
 			
-		</p>
+		</section>
 	</div>
 	<script src="./match.js"></script>
 	<script>
-		let element = document.getElementById('2');
-		let selector = "#b>#a>div>p";
-		console.log(onChild(selector, element));
+		let element = document.getElementById('last');
+		let selector = "#span+div";
+		console.log(match(selector, element));
 	</script>
 </body>
 </html>

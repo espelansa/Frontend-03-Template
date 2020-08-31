@@ -77,92 +77,54 @@ function onId(selector, element) {
 }
 
 function onClass(selector, element) {
-	console.log(element.getAttribute("class"))
+	// console.log(element.getAttribute("class"))
 	if (selector.slice(1) === element.getAttribute("class")) {
 		return true
 	}
 	return false
 }
 
-function father(selector, element) {
-	if (simpleMatch(selector, element)) {
-		return element;
-	} else {
-		const parentNode = element.parentNode;
-		if (!parentNode) {
+// 以 > 逻辑为例
+function onChild(selector, element) {
+	let selectors = selector.split(">").reverse();
+	let currentNode = element;
+	for (let i = 0; i < selectors.length; i++) {
+		// console.log('selectors[i]', selectors[i], currentNode, currentNode.parentNode)
+		if (!simpleMatch(selectors[i], currentNode)) {
 			return false;
-		}
-		return father(parentNode, selector)
-	}
-}
-
-// 从节点向树干上找更容易
-// 当且仅当selector.trim()中有" "才访问此函数
-function onDescendant(selector, element) {
-	let selectors = selector.trim().split(" ").reverse();
-	if (!simpleMatch(selectors[0], element)) {
-		return false;
-	}
-	for (let i = 1; i < selectors.length; i++) {
-		const selector = selectors[i];
-		element = father(selector, element);
-		if (!element) {
-			return false;
+		} else {
+			currentNode = currentNode.parentNode;
+			continue
 		}
 	}
 	return true;
 }
 
-// 以 > 逻辑为例
-function onChild(selector, element) {
-	// if (selector.match(/^([\S\s]+)>([\S\s]+)$/)) {
-	// 	// RegExp.$1.trim() RegExp.$2.trim() 
-	// 	if (simpleMatch(RegExp.$2.trim(), element) && simpleMatch(RegExp.$1.trim(), element.parentNode)) {
-	// 		return true;
-	// 	}
-	// 	return false;
-	// }
-	// let index = selector.lastIndexOf(">");
-	// if (index < 0) {
-	// 	return simpleMatch(selector, element);
-	// }
-	// if (!element) {
-	// 	return false;
-	// }
-	// if (simpleMatch(selector.slice(index + 1), element)) {
-	// 	return onChild(selector.slice(0, index), element.parentNode);
-	// } else {
-	// 	return false;
-	// }
-	let selectors = selector.split(">").reverse();
-	let currentNode = element;
-	for (let i = 0; i < selectors.length; i++) {
-		if (!simpleMatch(selectors[i], currentNode)) {
-			return false;
-		} else {
-
-		}
-		
-	}
-}
-
 function onAdjacent(selector, element) {
-	if (selector.match(/^([\S\s]+)\+([\S\s]+)$/)) {
-		const array = element.parentNode.childNodes; // 类数组对象
-		for (let i = 0; i < array.length; i++) {
-			if (!array[i].tagName) continue;
-			if (simpleMatch(RegExp.$1.trim(), array[i])) {
-				for (let j = i + 1; j < array.length; j++) {
-					if (!array[j].tagName) continue;
-					if (simpleMatch(RegExp.$2.trim(), array[j])) {
-						return true;
-					}
-				}
-				return false;
+	console.log(selector,element)
+	const selectors = selector.split("+");
+	const nodes = element.parentNode.childNodes; // 类数组对象
+
+	for (let i = 0; i < nodes.length; i++) {
+		const node = nodes[i];
+		console.log(selectors[0], 'selectors[0]')
+		if (!node.tagName) continue;
+		if (simpleMatch(selectors[0], node)) {
+			console.log('node', node)
+			selectors.shift();
+			console.log(selectors, 'selectors')
+			// 这里的逻辑还有漏洞
+			if (selectors.length === 0) {
+				if (node === element) {
+					return true
+				} else {
+					return false;
+				}		
 			}
+			continue;
 		}
-		return false;
 	}
+	return false;
 }
 
 // 重组复杂的selector, 删除多余的空格
@@ -183,7 +145,7 @@ function reArrange(complexSelector) {
 			}
 		}
 	}
-	return str.split(" ")
+	return str;
 }
 
 
@@ -191,30 +153,60 @@ function reArrange(complexSelector) {
 function compare(selector, element) {
 	let cIndex = selector.lastIndexOf(">");
 	let aIndex = selector.lastIndexOf("+");
+	// console.log(cIndex, aIndex)
 	if (cIndex > aIndex) {
-		if (!onChild(selector.slice(aIndex + 1), element)) {
-			return false;
+		if (aIndex < 0) {
+			return onChild(selector, element)
 		} else {
-			return compare(selector.slice(0, aIndex), element)
-		}
-	} else if (aIndex > cIndex) {
-		if (!onAdjacent(selector.slice(cIndex + 1), element)) {
-			return false;
-		} else {
+			if (!onChild(selector.slice(aIndex + 1), element)) {
+				return false;
+			}
 			return compare(selector.slice(0, cIndex), element)
 		}
+	} else if (aIndex > cIndex) {
+		if (cIndex < 0) {
+			return onAdjacent(selector, element)
+		} else {
+			if (!onAdjacent(selector.slice(cIndex + 1), element)) {
+				return false;
+			}
+			return compare(selector.slice(0, aIndex), element)
+		}
 	} else {
-		return true;
+		return simpleMatch(selector, element);
 	}
+}
+
+function father(selector, element) {
+	if (compare(selector, element)) {
+		return element;
+	} else {
+		const parentNode = element.parentNode;
+		if (!parentNode) {
+			return false;
+		}
+		return father(parentNode, selector)
+	}
+}
+
+// 从节点向树干上找更容易
+// 当且仅当selector.trim()中有" "才访问此函数
+function onDescendant(selector, element) {
+	let selectors = selector.trim().split(" ").reverse();
+	console.log(selectors)
+	if (!compare(selectors[0], element)) {
+		return false;
+	}
+	for (let i = 1; i < selectors.length; i++) {
+		const selector = selectors[i];
+		element = father(selector, element);
+		if (!element) {
+			return false;
+		}
+	}
+	return true;
 }
 
 function match(selector, element) {
-	const selectors = reArrange(selector);
-	for (let i = 0; i < selectors.length; i++) {
-		
-		
-	}
+	return onDescendant(reArrange(selector), element)
 }
-
-
-
