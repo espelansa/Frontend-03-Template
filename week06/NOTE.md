@@ -42,7 +42,6 @@ margin collapse只会发生在正常流的BFC里面
 - animation-duration
 - animation-timing-function 动画的时间曲线  
 在一个关键帧里定义多个属性时变化时会使用transition
-
 - animation-delay 动画开始前的延迟
 - animation-iteration-count 动画的播放次数
 - animation-direction
