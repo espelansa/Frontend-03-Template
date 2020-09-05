@@ -26,8 +26,35 @@ margin collapse只会发生在正常流的BFC里面
 3. block container but not block boxes(即排除第一项)
 4. block boxes with 'overflow' other than 'visible'
 
+
 ## Flex排版
 
 - 收集盒进行
 - 计算盒在主轴方向的排布
 - 计算盒在交叉轴方向的排布
+
+
+## CSS Animation
+
+### 六大属性
+
+- animation-name
+- animation-duration
+- animation-timing-function 动画的时间曲线  
+在一个关键帧里定义多个属性时变化时会使用transition
+
+- animation-delay 动画开始前的延迟
+- animation-iteration-count 动画的播放次数
+- animation-direction
+
+
+## Transition
+
+### 四大属性
+
+- transition-property 要变换的属性
+- transition-duration 变化的时长
+- transition-timing-function 时间曲线  
+所有的 timing-function 都与 [三次贝塞尔曲线](http://cubic-bezier.com) 相关
+- transition-delay 延迟
+
