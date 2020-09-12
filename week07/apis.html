@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!-- <script>
+    let names = Object.getOwnPropertyNames(window);
+
+    function filterOut(names, props) {
+      let set = new Set();
+      props.forEach(o => set.add(o));
+      return names.filter(e => !set.has(e))
+    }
+
+    // ECMA 262
+    let ecmaObjects = ["globalThis", "console", "BigInt", "BigInt64Array", "BigUnit64Array", "Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "Array", "Date", "RegExp", "Promise", "Proxy", "Map", "WeakMap", "Set", "WeakSet", "Function", "Boolean", "String", "Number", "Symbol", "Object", "Error", "EvalError", "RangeError", "ReferenceError", "SyntaxError", "TypeError", "URIError", "ArrayBuffer", "SharedArrayBuffer", "DataView", "Float32Array", "Float64Array", "Int8Array", "Int16Array", "Int32Array", "Unit8Array", "Unit16Array", "Unit32Array", "Unit8ClampedArray", "Atomics", "JSON", "Math", "Reflect", "escape", "unescape"];
+    names = filterOut(names, ecmaObjects);
+
+    // subclass of Node
+    names = names.filter(e => {
+      try {
+        return !(window[e].prototype instanceof Node)
+      } catch (error) {
+        return true
+      }
+    }).filter(e => e != "Node")
+
+    // event
+    names = names.filter(e => !e.match(/^on/));
+
+    // webkit private 
+    names = names.filter(e => !e.match(/^webkit/));
+
+    // window
+    let windowObjects = ['window', 'self', 'document', 'name', 'location', 'history', 'customElements', 'locationbar', 'menubar', 'personalbar', 'scrollbars', 'statusbar', 'toolbar', 'status', 'close', 'closed', 'stop', 'focus', 'blur', 'frames', 'length', 'top', 'opener', 'parent', 'frameElement', 'open', 'navigator', 'applicationCache', 'originIsolated', 'alert', 'confirm', 'prompt', 'print', 'postMessage'];
+    names = filterOut(names, windowObjects);
+
+    // html
+    let htmlObjects = ['origin', 'isSecureContext', 'crossOriginIsolated', 'btoa', 'atob', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'queueMicrotask', 'createImageBitmap', 'sessionStorage', 'localStorage', 'AnimationFrameProvider'];
+    names = filterOut(names, htmlObjects);
+
+    names = names.filter(e => e != "Intl");
+
+    // khronos
+    let khronosObjects = ["WebGLQuery", "WebGLSampler", "WebGLSync", "WebGLTransformFeedback", "WebGLVertexArrayObject","WebGL2RenderingContext", "WebGLObject", "WebGLBuffer", "WebGLFramebuffer", "WebGLProgram", "WebGLRenderbuffer", "WebGLShader", "WebGLTexture", "WebGLUniformLocation", "WebGLActiveInfo", "WebGLShaderPrecisionFormat", "WebGLRenderingContext", "WebGLContextEvent", 'canvas']
+    names = filterOut(names, khronosObjects);
+
+    // audio
+    let audiosObjects = ["BaseAudioContext", "AudioContext", "OfflineAudioContext", "OfflineAudioCompletionEvent", "AudioBuffer", "AudioNode", "AudioParam", "AudioScheduledSourceNode", "AnalyserNode", "AudioBufferSourceNode", "AudioDestinationNode", "AudioListener", "AudioProcessingEvent", "BiquadFilterNode", "ChannelMergerNode", "ChannelSplitterNode", "ConstantSourceNode", "ConvolverNode", "DelayNode", "DynamicsCompressorNode", "GainNode", "IIRFilterNode", "MediaElementAudioSourceNode", "MediaStreamAudioDestinationNode", "MediaStreamAudioSourceNode", "MediaStreamTrackAudioSourceNode", "OscillatorNode", "PannerNode", "PeriodicWave", "ScriptProcessorNode", "StereoPannerNode", "WaveShaperNode", "AudioWorklet", "AudioParamMap", "AudioWorkletNode", "BaseAudioContext", "AudioContext", "OfflineAudioContext", "OfflineAudioCompletionEvent", "AudioBuffer", "AudioNode", "AudioParam", "AudioScheduledSourceNode", "AnalyserNode", "AudioBufferSourceNode", "AudioDestinationNode", "AudioListener", "AudioProcessingEvent", "BiquadFilterNode", "ChannelMergerNode", "ChannelSplitterNode", "ConstantSourceNode", "ConvolverNode", "DelayNode", "DynamicsCompressorNode", "GainNode", "IIRFilterNode", "MediaElementAudioSourceNode", "MediaStreamAudioDestinationNode", "MediaStreamAudioSourceNode", "MediaStreamTrackAudioSourceNode", "OscillatorNode", "PannerNode", "PeriodicWave", "ScriptProcessorNode", "StereoPannerNode", "WaveShaperNode", "AudioWorklet", "AudioParamMap", "AudioWorkletNode"];
+    names = filterOut(names, audiosObjects);
+
+    // encoding
+    let encodingObjects = ["TextDecoder", "TextEncoder", "TextDecoderStream", "TextEncoderStream"];
+    names = filterOut(names, encodingObjects);
+
+    names = filterOut(names, ['SyncManager']);
+
+    console.log(names)
+  </script> -->
+  <script>
+    
+    let names = Object.getOwnPropertyNames(window);
+
+    function filterOut(names, props) {
+      let set = new Set();
+      props.forEach(o => set.add(o));
+      return names.filter(e => !set.has(e))
+    }
+
+    // ECMA 262
+    let ecmaObjects = ["globalThis", "console", "BigInt", "BigInt64Array", "BigUnit64Array", "Infinity", "NaN", "undefined", "eval", "isFinite", "isNaN", "parseFloat", "parseInt", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "Array", "Date", "RegExp", "Promise", "Proxy", "Map", "WeakMap", "Set", "WeakSet", "Function", "Boolean", "String", "Number", "Symbol", "Object", "Error", "EvalError", "RangeError", "ReferenceError", "SyntaxError", "TypeError", "URIError", "ArrayBuffer", "SharedArrayBuffer", "DataView", "Float32Array", "Float64Array", "Int8Array", "Int16Array", "Int32Array", "Unit8Array", "Unit16Array", "Unit32Array", "Unit8ClampedArray", "Atomics", "JSON", "Math", "Reflect", "escape", "unescape"];
+    names = filterOut(names, ecmaObjects);
+
+    // subclass of Node
+    names = names.filter(e => {
+      try {
+        return !(window[e].prototype instanceof Node)
+      } catch (error) {
+        return true
+      }
+    }).filter(e => e != "Node")
+
+    // event
+    names = names.filter(e => !e.match(/^on/));
+
+    // webkit private 
+    names = names.filter(e => !e.match(/^webkit/));
+
+    // window
+    let windowObjects = ['window', 'self', 'document', 'name', 'location', 'history', 'customElements', 'locationbar', 'menubar', 'personalbar', 'scrollbars', 'statusbar', 'toolbar', 'status', 'close', 'closed', 'stop', 'focus', 'blur', 'frames', 'length', 'top', 'opener', 'parent', 'frameElement', 'open', 'navigator', 'applicationCache', 'originIsolated', 'alert', 'confirm', 'prompt', 'print', 'postMessage'];
+    names = filterOut(names, windowObjects);
+
+    // html
+    let htmlObjects = ['origin', 'isSecureContext', 'crossOriginIsolated', 'btoa', 'atob', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'queueMicrotask', 'createImageBitmap', 'sessionStorage', 'localStorage', 'AnimationFrameProvider'];
+    names = filterOut(names, htmlObjects);
+
+    names = names.filter(e => e != "Intl");
+
+    // khronos
+    let khronosObjects = ["WebGLQuery", "WebGLSampler", "WebGLSync", "WebGLTransformFeedback", "WebGLVertexArrayObject","WebGL2RenderingContext", "WebGLObject", "WebGLBuffer", "WebGLFramebuffer", "WebGLProgram", "WebGLRenderbuffer", "WebGLShader", "WebGLTexture", "WebGLUniformLocation", "WebGLActiveInfo", "WebGLShaderPrecisionFormat", "WebGLRenderingContext", "WebGLContextEvent", 'canvas']
+    names = filterOut(names, khronosObjects);
+
+    // audio
+    let audiosObjects = ["BaseAudioContext", "AudioContext", "OfflineAudioContext", "OfflineAudioCompletionEvent", "AudioBuffer", "AudioNode", "AudioParam", "AudioScheduledSourceNode", "AnalyserNode", "AudioBufferSourceNode", "AudioDestinationNode", "AudioListener", "AudioProcessingEvent", "BiquadFilterNode", "ChannelMergerNode", "ChannelSplitterNode", "ConstantSourceNode", "ConvolverNode", "DelayNode", "DynamicsCompressorNode", "GainNode", "IIRFilterNode", "MediaElementAudioSourceNode", "MediaStreamAudioDestinationNode", "MediaStreamAudioSourceNode", "MediaStreamTrackAudioSourceNode", "OscillatorNode", "PannerNode", "PeriodicWave", "ScriptProcessorNode", "StereoPannerNode", "WaveShaperNode", "AudioWorklet", "AudioParamMap", "AudioWorkletNode", "BaseAudioContext", "AudioContext", "OfflineAudioContext", "OfflineAudioCompletionEvent", "AudioBuffer", "AudioNode", "AudioParam", "AudioScheduledSourceNode", "AnalyserNode", "AudioBufferSourceNode", "AudioDestinationNode", "AudioListener", "AudioProcessingEvent", "BiquadFilterNode", "ChannelMergerNode", "ChannelSplitterNode", "ConstantSourceNode", "ConvolverNode", "DelayNode", "DynamicsCompressorNode", "GainNode", "IIRFilterNode", "MediaElementAudioSourceNode", "MediaStreamAudioDestinationNode", "MediaStreamAudioSourceNode", "MediaStreamTrackAudioSourceNode", "OscillatorNode", "PannerNode", "PeriodicWave", "ScriptProcessorNode", "StereoPannerNode", "WaveShaperNode", "AudioWorklet", "AudioParamMap", "AudioWorkletNode"];
+    names = filterOut(names, audiosObjects);
+
+    // encoding
+    let encodingObjects = ["TextDecoder", "TextEncoder", "TextDecoderStream", "TextEncoderStream"];
+    names = filterOut(names, encodingObjects);
+
+    names = filterOut(names, ['SyncManager']);
+
+    console.log(names)
+  
+  </script>
+</body>
+</html>
