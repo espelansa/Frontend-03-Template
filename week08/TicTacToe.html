@@ -66,7 +66,7 @@
 
     show(pattern);
 
-    function check() {
+    function check(pattern, color) {
       // 检查行
       for (let i = 0; i < 3; i++) {
         let win = true;
@@ -118,6 +118,7 @@
           }
           let tmp = clone(pattern);
           tmp[i][j] = color;
+          console.log(tmp, "tmp")
           if (check(tmp, color)) {
             return true;
           }
