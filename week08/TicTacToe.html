@@ -120,10 +120,15 @@
           tmp[i][j] = color;
           console.log(tmp, "tmp")
           if (check(tmp, color)) {
-            return true;
+            return [j, i];
           }
         }
       }
+    }
+
+    function bestChoice(pattern, color) {
+      let p;
+      
     }
   </script>
 </body>
