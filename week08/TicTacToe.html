@@ -24,8 +24,8 @@
 
   <script>
     let pattern = [
-      [0, 0, 0],
-      [0, 0, 0],
+      [0, 2, 0],
+      [0, 1, 0],
       [0, 0, 0],
     ]
 
@@ -63,8 +63,6 @@
         console.log(color === 2 ? "❌ will win!" : "⭕️ will win!");
       }
     }
-
-    show(pattern);
 
     function check(pattern, color) {
       // 检查行
@@ -106,7 +104,7 @@
       if (win) return true;
     }
 
-    function clone() {
+    function clone(pattern) {
       return JSON.parse(JSON.stringify(pattern));
     }
 
@@ -118,18 +116,48 @@
           }
           let tmp = clone(pattern);
           tmp[i][j] = color;
-          console.log(tmp, "tmp")
           if (check(tmp, color)) {
             return [j, i];
           }
         }
       }
+      return null;
     }
 
     function bestChoice(pattern, color) {
       let p;
-      
+      if (p = willWin(pattern, color)) {
+        return {
+          point: p,
+          result: 1,
+        }
+      }
+      // -1输 0和 1赢
+      let result = -2;
+      let point = null;
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (pattern[i][j]) {
+            continue;
+          }
+          let tmp = clone(pattern)
+          tmp[i][j] = color;
+          let r = bestChoice(tmp, 3 - color).result;
+     
+          if (-r > result) {
+            result = -r;
+            point = [j, i];
+          }
+        }
+      }
+      return {
+        point,
+        result: point ? result : 0,
+      }
     }
+
+    show(pattern);
+    console.log(bestChoice(pattern, color))
   </script>
 </body>
 </html>
