@@ -69,15 +69,12 @@
     // document.addEventListener("contextmenu", e => e.preventDefault())
 
     async function findPath(map, start, end) {
-      let queue = new Sorted([start], (a, b) => distanceEnd(a) - distanceEnd(b));
+      let queue = new Sorted([start], (a, b) => distance(a) - distance(b));
       let table = Object.create(map);
+      let queue2 = new BinaryHeapSorted(start, (a, b) => distance(a) - distance(b));
 
-      function distanceEnd(point) {
+      function distance(point) {
         return Math.pow(point[0] - end[0], 2) + Math.pow(point[1] - end[1], 2)
-      }
-
-      function distanceStart(point) {
-        return Math.pow(point[0] - start[0], 2) + Math.pow(point[1] - start[1], 2)
       }
 
       async function insert(x, y, pre) {
@@ -91,11 +88,12 @@
         container.children[y * 100 + x].style.backgroundColor = 'lightgreen';
         table[100 * y + x] = pre;
         queue.give([x, y]);
+        queue2.give([x, y]);
       }
       
       while(queue.data.length) {
         // 改成pop就是深度优先搜索
-        let [x, y] = queue.take();
+        let [x, y] = queue2.take();
         if (x === end[0] && y === end[1]) {
           // console.log(table, 'table')
           let path = [];
@@ -147,7 +145,69 @@
         this.data.push(v);
       }
     }
+  
+    // 二叉堆实现Sorted 
+    class BinaryHeapSorted {
+      constructor(v, compare) {
+        this.data = [
+          [{ value: v }]
+        ]
+        this.index = 0; // 跟踪当前行数
+        this.compare = compare;
+      }
+      give(v) {
+        let layer = this.data[this.index];
+        let insertIndex = layer.length;
 
+        if (insertIndex < Math.pow(2, this.index)) {
+          this.insert(v)
+        } else {
+          this.index += 1;
+          this.data[this.index] = [];
+          this.insert(v);
+        }
+      }
+      insert(v) {
+        let layer = this.data[this.index];
+        let insertIndex = layer.length;
+        layer[insertIndex] = { value: v }
+        let parentIndex = Math.floor((insertIndex - 1) / 2)
+        let parent = this.data[this.index - 1][parentIndex];
+        
+        // 插入
+        while(this.compare(parent.value, v) < 0) {
+          // 与父节点交换
+          layer[insertIndex] = parent;
+          this.data[this.index - 1][parentIndex] = { value: v };
+          this.index -= 1;
+          insertIndex = parentIndex;
+          layer = this.data[this.index];
+          parentIndex = Math.floor((layer.length - 1) / 2)
+          parent = this.data[this.index - 1][parentIndex];
+        }
+        // 将逻辑置于最下面一层
+        this.index = this.data.length - 1;
+      }
+      take() {
+        // 找出minIndex
+        let array = this.data[this.index];
+        let minIndex = 0;
+        for (let i = 0; i < array.length; i++) {
+          if (this.compare(array[i].value, array[minIndex].value) < 0) {
+            minIndex = i;
+          }
+        }
+
+        // 求出需要向上搬运几层
+        let len = array.length;
+        let toward = Math.floor((len - 1 - minIndex) / 2);
+        let n = Math.floor(toward / 2);
+        for (let j = 0; j < n; j++) {
+          
+          
+        }
+      }
+    }  
   </script>
 </body>
 </html>
