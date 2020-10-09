@@ -1,5 +1,57 @@
 <script>
   function find(source, pattern) {
+    // 统计*数量
+    let starCount = 0;
+    for (let i = 0; i < pattern.length; i++) {
+      if (pattern[i] === "*")
+        starCount ++;
+    }
 
+    // 边界情况：没有*与pattern严格一一匹配
+    if (starCount === 0) {
+      for (let i = 0; i < pattern.length; i++) {
+        if (pattern[i] !== source[i] && pattern[i] !== "?") 
+          return false;
+      }
+      return;
+    }
+
+    // 处理第一个*之前的部分
+    let i = 0;
+    let lastIndex = 0;
+
+    for (i = 0; pattern[i] !== "*"; i++) {
+      if (pattern[i] !== source[i] && pattern[i] !== "?") 
+        return false; 
+    }
+
+    lastIndex = i;
+
+    for (let p = 0; p < starCount - 1; p++) {
+      i++;
+      let subPattern = "";
+      while (pattern[i] !== "*") {
+        subPattern += pattern[i];
+        i++;
+      }
+
+      let reg = new RegExp(subPattern.replace(/\?/g, "[\\s\\S]"), "g");
+      // 决定了exec的时候从哪个字符开始
+      reg.lastIndex = lastIndex;
+
+      if (!reg.exec(source)) 
+        return false;
+
+      lastIndex = reg.lastIndex;
+    }
+
+    // 匹配最后一个*后面的部分
+    // pattern[pattern.length - j] 最后一个*不需要去判断是否匹配，因为他可以用来匹配剩下的所有字符
+    for (let j = 0; j < source.length - lastIndex && pattern[pattern.length - j] !== "*"; j++) {
+      if (pattern[pattern.length - j] !== source[source.length - j] && pattern[pattern.length - j] !== "?")
+        return false;
+    }
+
+    return true;
 	}
 </script>
