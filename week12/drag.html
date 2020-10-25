@@ -1,4 +1,4 @@
-<div id="dragable" style="width: 100px; height: 100px; background-color: pink;"></div>
+<div id="dragable" style="display: inline-block; width: 100px; height: 100px; background-color: pink;"></div>
 <div id="container">
     文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
     文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
@@ -49,7 +49,9 @@
         };
 
         let move = event => {
-            dragable.style.transform = `translate(${baseX + event.clientX - startX}px, ${baseY + event.clientY - startY}px)`
+            let range = getNearest(event.clientX, event.clientY);
+            range.insertNode(dragable);
+            // dragable.style.transform = `translate(${baseX + event.clientX - startX}px, ${baseY + event.clientY - startY}px)`
         };
         // 比较新的现代浏览器 document上去监听就会产生一个捕捉鼠标的效果 即使你移出浏览器外面，它这个事件是仍然可以接收到的。
         document.addEventListener("mousemove", move)
@@ -76,7 +78,14 @@
         for (let range of ranges) {
             let rect = range.getBoundingClientRect();
             let distance = (rect.x - x) ** 2 + (rect.y - y) ** 2
-            // if ()
+            if (distance < min) {
+                nearest = range;
+                min = distance;
+            }
         }
+
+        return nearest;
     }
+
+    document.addEventListener("selectstart", event => event.preventDefault())
 </script>
